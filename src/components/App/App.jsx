@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Statistic from '../Statistic/Statistic';
 import FeedbackOptions from '../FeedbackOptions/FeedbackOptions';
 import Section from '../Section/Section';
@@ -9,6 +9,8 @@ export const App = () => {
   const [good, setGood] = useState(0);
   const [neutral, setNeutral] = useState(0);
   const [bad, setBad] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [positiveFeedback, setPositiveFeedback] = useState(0);
 
   const stateMap = {
     good: setGood,
@@ -21,14 +23,14 @@ export const App = () => {
     stateMap[name](prev => prev + 1);
   };
 
-  const countTotalFeedback = () => {
+  useEffect(() => {
     const feedback = [good, neutral, bad];
-    return feedback.reduce((acc, next) => acc + next, 0);
-  };
+    setTotal(feedback.reduce((acc, next) => acc + next, 0));
+  }, [bad, good, neutral]);
 
-  const countPositiveFeedbackPercentage = () => {
-    return Math.round(good > 0 ? (good / countTotalFeedback()) * 100 : 0);
-  };
+  useEffect(() => {
+    setPositiveFeedback(Math.round(good > 0 ? (good / total) * 100 : 0));
+  }, [good, total]);
 
   return (
     <Container>
@@ -39,10 +41,10 @@ export const App = () => {
         />
       </Section>
       <Section title="Statistic">
-        {countTotalFeedback() > 0 ? (
+        {total > 0 ? (
           <Statistic
-            total={countTotalFeedback()}
-            positivePercentage={countPositiveFeedbackPercentage()}
+            total={total}
+            positivePercentage={positiveFeedback}
             good={good}
             neutral={neutral}
             bad={bad}
